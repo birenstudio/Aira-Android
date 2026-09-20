@@ -1,0 +1,107 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidUser(data) {
+      return data.uid is string && data.uid == request.auth.uid &&
+        data.email is string && data.email.size() <= 150 &&
+        (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 100)) &&
+        (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() <= 500)) &&
+        (!('preferredName' in data) || (data.preferredName is string && data.preferredName.size() <= 60)) &&
+        (!('createdAt' in data) || data.createdAt is timestamp) &&
+        (!('updatedAt' in data) || data.updatedAt is timestamp);
+    }
+
+    function isValidSupportRequest(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+        data.userEmail is string && data.userEmail.size() <= 150 &&
+        data.subject is string && data.subject.size() > 0 && data.subject.size() <= 200 &&
+        data.message is string && data.message.size() > 0 && data.message.size() <= 2000 &&
+        data.category in ['general', 'voice_pipeline', 'gemini_key', 'installation', 'bug_report'] &&
+        data.status in ['open', 'resolved'] &&
+        (!('createdAt' in data) || data.createdAt is timestamp);
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && isValidId(userId) &&
+        incoming().keys().hasAll(['uid', 'email']) &&
+        incoming().keys().hasOnly(['uid', 'email', 'displayName', 'photoURL', 'preferredName', 'createdAt', 'updatedAt']) &&
+        isValidUser(incoming()) &&
+        (!('createdAt' in incoming()) || incoming().createdAt == request.time);
+      allow update: if isOwner(userId) && isValidId(userId) &&
+        isValidUser(incoming()) &&
+        incoming().uid == existing().uid &&
+        incoming().email == existing().email &&
+        (!('createdAt' in existing()) || incoming().createdAt == existing().createdAt) &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'preferredName', 'updatedAt']) &&
+        (!('updatedAt' in incoming()) || incoming().updatedAt == request.time);
+      allow delete: if isOwner(userId) && isValidId(userId);
+
+      // Subcollection: User memories synced with AIRA
+      match /memories/{memoryId} {
+        allow get: if isOwner(userId) && isValidId(memoryId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(memoryId) &&
+          incoming().keys().hasAll(['userId', 'text', 'category']) &&
+          incoming().keys().hasOnly(['userId', 'text', 'category', 'createdAt']) &&
+          incoming().userId == request.auth.uid &&
+          incoming().text is string && incoming().text.size() > 0 && incoming().text.size() <= 1000 &&
+          incoming().category is string && incoming().category.size() <= 50 &&
+          (!('createdAt' in incoming()) || incoming().createdAt == request.time);
+        allow update: if isOwner(userId) && isValidId(memoryId) &&
+          incoming().userId == existing().userId &&
+          incoming().text is string && incoming().text.size() > 0 && incoming().text.size() <= 1000 &&
+          incoming().category is string && incoming().category.size() <= 50 &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['text', 'category']);
+        allow delete: if isOwner(userId) && isValidId(memoryId);
+      }
+    }
+
+    // Support Requests Collection (for support email biren.business1@gmail.com)
+    match /support_requests/{requestId} {
+      allow get: if isSignedIn() && isValidId(requestId) && resource.data.userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(requestId) &&
+        incoming().keys().hasAll(['userId', 'userEmail', 'subject', 'message', 'category', 'status']) &&
+        incoming().keys().hasOnly(['userId', 'userEmail', 'subject', 'message', 'category', 'status', 'createdAt']) &&
+        isValidSupportRequest(incoming()) &&
+        (!('createdAt' in incoming()) || incoming().createdAt == request.time);
+      allow update: if isSignedIn() && isValidId(requestId) &&
+        existing().userId == request.auth.uid &&
+        isValidSupportRequest(incoming()) &&
+        incoming().userId == existing().userId &&
+        incoming().userEmail == existing().userEmail &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['status', 'message']);
+      allow delete: if isSignedIn() && isValidId(requestId) && existing().userId == request.auth.uid;
+    }
+  }
+}

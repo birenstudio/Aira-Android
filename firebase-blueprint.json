@@ -1,0 +1,60 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User account profile and preferences",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 150 },
+        "photoURL": { "type": "string", "maxLength": 500 },
+        "preferredName": { "type": "string", "maxLength": 60 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "SupportRequest": {
+      "title": "SupportRequest",
+      "description": "Support or feedback inquiry submitted for support email biren.business1@gmail.com",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "userEmail": { "type": "string", "maxLength": 150 },
+        "subject": { "type": "string", "maxLength": 200 },
+        "message": { "type": "string", "maxLength": 2000 },
+        "category": { "type": "string", "enum": ["general", "voice_pipeline", "gemini_key", "installation", "bug_report"] },
+        "status": { "type": "string", "enum": ["open", "resolved"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "userEmail", "subject", "message", "category", "status"]
+    },
+    "UserMemory": {
+      "title": "UserMemory",
+      "description": "Cloud-backed synced assistant memory note for AIRA companion",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "text": { "type": "string", "maxLength": 1000 },
+        "category": { "type": "string", "maxLength": 50 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "text", "category"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile collection partitioned by Firebase Auth UID"
+    },
+    "/users/{userId}/memories/{memoryId}": {
+      "schema": "UserMemory",
+      "description": "User companion memory records synced with AIRA"
+    },
+    "/support_requests/{requestId}": {
+      "schema": "SupportRequest",
+      "description": "Inquiries submitted by authenticated users for assistance"
+    }
+  }
+}

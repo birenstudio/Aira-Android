@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: 'Syne', system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --color-obsidian-950: #040508;
+  --color-obsidian-900: #07080D;
+  --color-obsidian-850: #0B0D15;
+  --color-obsidian-800: #10131F;
+  --color-obsidian-700: #181D2E;
+}
+
+/* Custom glow & glass utility classes */
+.glass-panel {
+  background: rgba(13, 16, 26, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel-glow {
+  background: rgba(13, 16, 26, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  box-shadow: 0 0 30px -10px rgba(56, 189, 248, 0.15);
+}
+
+.glass-pill {
+  background: rgba(17, 21, 35, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Atmospheric ambient radial backgrounds */
+.bg-radial-hero {
+  background: radial-gradient(circle at 50% 30%, rgba(56, 189, 248, 0.12) 0%, rgba(139, 92, 246, 0.08) 35%, transparent 70%);
+}
+
+.bg-radial-subtle {
+  background: radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.06) 0%, transparent 60%);
+}
+
+/* Hide scrollbar for clean UI while maintaining scrolling */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
