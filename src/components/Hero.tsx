@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sparkles, Zap, Shield, Activity, Play } from 'lucide-react';
 import { assetUrls } from '../config/airaConfig';
+import { ProtectedDownloadButton } from './ProtectedDownloadButton';
 
 interface HeroProps {
   onExploreClick?: () => void;
@@ -61,19 +62,14 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick, onDownloadClick }) =
 
           {/* CTA Buttons */}
           <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-4 w-full">
-            <button
+            <ProtectedDownloadButton
               id="hero-download-cta"
-              onClick={() => {
-                scrollToSection('download');
+              variant="primary"
+              label="Download AIRA"
+              onClickBefore={() => {
                 if (onDownloadClick) onDownloadClick();
               }}
-              className="group relative inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-bold tracking-wide text-white bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:from-violet-500 hover:to-cyan-400 shadow-[0_0_30px_rgba(56,189,248,0.45)] transition-all duration-300 active:scale-95"
-            >
-              <svg className="w-4 h-4 text-cyan-200" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.551 0 .9996.4482.9996.9993.0001.5511-.4486.9997-.9996.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9997.4482.9997.9993 0 .5511-.4486.9997-.9997.9997m11.4045-6.02l1.996-3.4572c.1556-.2696.0633-.6135-.2063-.7692-.2691-.1556-.6131-.0633-.7687.2063l-2.0224 3.5029c-1.4646-.6672-3.1118-1.0423-4.8801-1.0423s-3.4155.3751-4.8801 1.0423L5.1004 5.3022c-.1556-.2696-.4996-.3619-.7687-.2063-.2696.1557-.3619.4996-.2063.7692l1.996 3.4572C2.6888 11.2868.3444 15.0232 0 19.3905h24c-.3444-4.3673-2.6888-8.1037-6.1185-10.0691" />
-              </svg>
-              <span>Download AIRA</span>
-            </button>
+            />
 
             <button
               id="hero-explore-cta"

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { AiraDemo } from './components/AiraDemo';
@@ -19,6 +19,18 @@ import { Footer } from './components/Footer';
 import { LegalModal } from './components/LegalModal';
 import { SupportModal } from './components/SupportModal';
 import { UserAccountModal } from './components/UserAccountModal';
+import { AuthModal } from './components/AuthModal';
+
+const AuthModalContainer: React.FC = () => {
+  const { authModalOpen, authModalReason, closeAuthModal } = useAuth();
+  return (
+    <AuthModal
+      isOpen={authModalOpen}
+      onClose={closeAuthModal}
+      reason={authModalReason}
+    />
+  );
+};
 
 export default function App() {
   const [legalModalOpen, setLegalModalOpen] = useState(false);
@@ -123,6 +135,9 @@ export default function App() {
           onClose={() => setAccountModalOpen(false)}
           onOpenSupport={openSupport}
         />
+
+        {/* AIRA Protected Authentication Modal */}
+        <AuthModalContainer />
       </div>
     </AuthProvider>
   );

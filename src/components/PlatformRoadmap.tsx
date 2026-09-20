@@ -1,6 +1,6 @@
 import React from 'react';
 import { Smartphone, Watch, Monitor, Globe, CheckCircle2, Clock, Sparkles } from 'lucide-react';
-import { AIRA_DOWNLOAD_URL } from '../config/airaConfig';
+import { ProtectedDownloadButton } from './ProtectedDownloadButton';
 
 export const PlatformRoadmap: React.FC = () => {
   const platforms = [
@@ -154,13 +154,12 @@ export const PlatformRoadmap: React.FC = () => {
 
                   {p.isAvailable && (
                     <div className="mt-6 pt-4 border-t border-cyan-500/20">
-                      <a
-                        href={AIRA_DOWNLOAD_URL}
-                        className="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-300 hover:text-cyan-200 transition-colors"
-                      >
-                        <span>Download APK</span>
-                        <span>→</span>
-                      </a>
+                      <ProtectedDownloadButton
+                        id="platform-android-download-btn"
+                        variant="secondary"
+                        label="Download APK"
+                        className="py-1.5 px-4 text-xs font-bold text-cyan-300 border-cyan-500/30 hover:border-cyan-400"
+                      />
                     </div>
                   )}
                 </div>

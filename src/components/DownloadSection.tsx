@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { downloadConfig, AIRA_DOWNLOAD_URL } from '../config/airaConfig';
+import { downloadConfig } from '../config/airaConfig';
+import { useAuth } from '../context/AuthContext';
+import { ProtectedDownloadButton } from './ProtectedDownloadButton';
 import {
   Download,
   Copy,
@@ -16,10 +18,13 @@ import {
   ExternalLink,
   Info,
   KeyRound,
-  CheckCircle2
+  CheckCircle2,
+  Lock,
+  Sparkles
 } from 'lucide-react';
 
 export const DownloadSection: React.FC = () => {
+  const { user, isDownloading, downloadStatusMessage } = useAuth();
   const [copiedChecksum, setCopiedChecksum] = useState(false);
   const [showReleaseNotes, setShowReleaseNotes] = useState(true);
   const [showPreviousReleases, setShowPreviousReleases] = useState(false);
@@ -28,10 +33,6 @@ export const DownloadSection: React.FC = () => {
     navigator.clipboard.writeText(downloadConfig.sha256);
     setCopiedChecksum(true);
     setTimeout(() => setCopiedChecksum(false), 2000);
-  };
-
-  const handleDownloadClick = () => {
-    window.location.href = AIRA_DOWNLOAD_URL;
   };
 
   const quickSteps = [
@@ -77,20 +78,37 @@ export const DownloadSection: React.FC = () => {
               <p className="text-sm text-slate-300">
                 Official standalone Android release built for continuous voice and device execution.
               </p>
+              {/* Access status badge */}
+              <div className="pt-1 flex items-center gap-2">
+                {user ? (
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-medium text-emerald-300">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Signed in as <strong className="text-white">{user.displayName?.split(' ')[0] || user.email}</strong></span>
+                  </div>
+                ) : (
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-[11px] font-medium text-cyan-300">
+                    <Lock className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Sign-in required to download</span>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Main Action Buttons */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 shrink-0">
               <div className="flex flex-col items-center sm:items-start gap-1">
-                <button
+                <ProtectedDownloadButton
                   id="main-download-apk-btn"
-                  onClick={handleDownloadClick}
-                  className="group relative inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full text-sm font-bold tracking-wide text-white bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:from-violet-500 hover:to-cyan-400 shadow-[0_0_25px_rgba(0,242,254,0.4)] transition-all duration-200 active:scale-95"
-                >
-                  <Download className="w-4 h-4 text-cyan-200 group-hover:-translate-y-0.5 transition-transform" />
-                  <span>Download AIRA for Android</span>
-                </button>
-                <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider self-center">
+                  variant="primary"
+                  label="Download AIRA for Android"
+                  className="px-8 py-4"
+                />
+                {downloadStatusMessage && (
+                  <span className="text-xs font-mono text-cyan-300 animate-pulse mt-1">
+                    {downloadStatusMessage}
+                  </span>
+                )}
+                <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider self-center sm:self-start mt-1">
                   Android 10+ • Free Direct APK (~48 MB)
                 </span>
               </div>
